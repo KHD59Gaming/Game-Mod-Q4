@@ -1,0 +1,3 @@
+airdefense1.map entity 1161 = player spawn - new spawn (11938 -9260 157)
+airdefense1.map entity 2108 = last strogg marine spawn
+airdefense1.map entity 2096/2098 = entrance door to airdefensefort

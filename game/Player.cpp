@@ -336,9 +336,9 @@ void idInventory::RestoreInventory( idPlayer *owner, const idDict &dict ) {
 	//Clear();
 
 	// health/armor
-	maxHealth		= dict.GetInt( "maxhealth", "100" );
+	maxHealth		= dict.GetInt( "maxhealth", "999" );
 	armor			= dict.GetInt( "armor", "50" );
-	maxarmor		= dict.GetInt( "maxarmor", "100" );
+	maxarmor		= dict.GetInt( "maxarmor", "999" );
 
 	// ammo
 	for( i = 0; i < MAX_AMMOTYPES; i++ ) {
@@ -1176,7 +1176,7 @@ idPlayer::idPlayer() {
 	previousWeapon			= -1;
 	weaponSwitchTime		=  0;
 	weaponEnabled			= true;
- 	showWeaponViewModel		= true;
+ 	showWeaponViewModel		= true; //KQ was true
 	oldInventoryWeapons		= 0;
 
 // RAVEN BEGIN
@@ -1360,6 +1360,10 @@ idPlayer::SetShowHud
 */
 bool idPlayer::GetShowHud( void )	{
 	return !disableHud;
+}
+
+void idPlayer::SetCurrentWeapon(int weaponNum) {
+	currentWeapon = weaponNum;
 }
 
 /*
@@ -4246,6 +4250,8 @@ bool idPlayer::GiveItem( idItem *item ) {
 			UpdateHudWeapon( );
 		} else {
 			//so weapon mods highlight the correct weapon when received
+			this->GiveItem(item);
+			this->CacheWeapons();
 			int weapon = SlotForWeapon ( arg->GetValue() );
 			UpdateHudWeapon( weapon );
 		}
@@ -9089,7 +9095,8 @@ void idPlayer::Move( void ) {
 // RAVEN BEGIN
 // abahr: don't crashland while no clipping.
 	if( !noclip ) {
-		CrashLand( oldOrigin, oldVelocity );
+		//KQ removed for float
+		//CrashLand( oldOrigin, oldVelocity );
 	}
 // RAVEN END
 }
@@ -11183,6 +11190,18 @@ idPlayer::Event_SetHealth
 void idPlayer::Event_SetHealth( float newHealth ) {
 	health = idMath::ClampInt( 1 , inventory.maxHealth, newHealth );
 }
+
+/*
+=============
+idPlayer::Event_Heal
+=============
+*/
+void idPlayer::Event_Heal(float newHealth) {
+	health = idMath::ClampInt(1, inventory.maxHealth, newHealth);
+}
+
+
+
 /*
 =============
 idPlayer::Event_SetArmor
@@ -11508,6 +11527,47 @@ void idPlayer::Event_SelectWeapon( const char *weaponName ) {
 	idealWeapon = weaponNum;
 
  	UpdateHudWeapon();
+}
+
+/*
+==================
+idPlayer::Event_SwapWeapon
+==================
+*/
+void idPlayer::Event_SwapWeapon(const char* weaponName) {
+	int i;
+	int weaponNum;
+
+	if (gameLocal.isClient) {
+		gameLocal.Warning("Cannot switch weapons from script in multiplayer");
+		return;
+	}
+
+	weaponNum = -1;
+	for (i = 0; i < MAX_WEAPONS; i++) {
+		if (inventory.weapons & (1 << i)) {
+			const char* weap = "weapon_machinegun"; //was spawnArgs.GetString(va("def_weapon%d", i));
+			if (!idStr::Cmp(weap, weaponName)) {
+				/*
+				if (!inventory.HasAmmo(weap)) {
+					return;
+				}
+				*/
+				weaponNum = i;
+				break;
+			}
+		}
+	}
+
+	if (weaponNum < 0) {
+		gameLocal.Printf("%s is not carrying weapon '%s'", name.c_str(), weaponName);
+		return;
+	}
+
+	hiddenWeapon = false;
+	idealWeapon = weaponNum;
+
+	UpdateHudWeapon();
 }
 
 /*

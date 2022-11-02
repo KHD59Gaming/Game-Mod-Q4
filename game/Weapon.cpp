@@ -241,7 +241,7 @@ void rvViewWeapon::SetModel( const char *modelname, int mods ) {
 		gameRenderWorld->RemoveDecals( modelDefHandle );
 	}
 
-	renderEntity.hModel = animator.SetModel( modelname );
+	//renderEntity.hModel = animator.SetModel( modelname ); //KQ commented out for no weapon display
 	if ( renderEntity.hModel ) {
 		renderEntity.customSkin = animator.ModelDef()->GetDefaultSkin();
 		animator.GetJoints( &renderEntity.numJoints, &renderEntity.joints );
@@ -3064,14 +3064,14 @@ void rvWeapon::PlayAnim( int channel, const char *animname, int blendFrames ) {
 		animDoneTime[channel] = 0;
 	} else {
 		viewModel->Show();
-		viewAnimator->PlayAnim( channel, anim, gameLocal.time, FRAME2MS( blendFrames ) );
+		//viewAnimator->PlayAnim( channel, anim, gameLocal.time, FRAME2MS( blendFrames ) );
 		animDoneTime[channel] = viewAnimator->CurrentAnim( channel )->GetEndTime();
 		
 		// Play the animation on the world model as well
 		if ( worldAnimator ) {
 			worldAnimator->GetAnim( animname );
 			if ( anim ) {
-				worldAnimator->PlayAnim( channel, anim, gameLocal.time, FRAME2MS( blendFrames ) );
+				//worldAnimator->PlayAnim( channel, anim, gameLocal.time, FRAME2MS( blendFrames ) );
 			}
 		}
 	}

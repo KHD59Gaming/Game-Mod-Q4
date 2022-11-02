@@ -23,10 +23,13 @@
 #if !defined(__INSTANCE_H__)
 	#include "../Instance.h"
 #endif
+#if !defined(__PLAYER_H__)
+#include "../Player.h"
+#endif
 // RAVEN END
 
 #ifdef _WIN32
-#include "TypeInfo.h"
+#include "TypeInfo"
 #else
 #include "NoGameTypeInfo.h"
 #endif
@@ -171,7 +174,7 @@ void Cmd_ListSpawnArgs_f( const idCmdArgs &args ) {
 
 	for ( i = 0; i < ent->spawnArgs.GetNumKeyVals(); i++ ) {
 		const idKeyValue *kv = ent->spawnArgs.GetKeyVal( i );
-		gameLocal.Printf( "\"%s\"  "S_COLOR_WHITE"\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
+		gameLocal.Printf( "\"%s\"  " S_COLOR_WHITE "\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
 	}
 }
 
@@ -3016,6 +3019,34 @@ void Cmd_TestClientModel_f( const idCmdArgs& args ) {
 
 // RAVEN END
 
+// KQ BEGIN
+void Cmd_Locate_f(const idCmdArgs& args) {
+	idPlayer* player = NULL;
+	player = gameLocal.GetLocalPlayer();
+	if (!player)
+		return;
+	idVec3 origin = player->GetPhysics()->GetOrigin();
+	gameLocal.Printf("Location: (%f, %f, %f)\n", origin[0], origin[1], origin[2]);
+}
+
+void Cmd_Heal_f(const idCmdArgs& args) {
+	idPlayer* player = NULL;
+	player = gameLocal.GetLocalPlayer();
+	if (!player)
+		return;
+	player->idPlayer::Event_Heal(999);
+}
+
+void Cmd_Flamethrower_f(const idCmdArgs& args) {
+	idPlayer* player = NULL;
+	player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		return;
+	}
+	GiveStuffToPlayer(player, "all", "all");
+}
+// KQ END
+
 void Cmd_CheckSave_f( const idCmdArgs &args );
 
 void Cmd_ShuffleTeams_f( const idCmdArgs& args ) {
@@ -3133,6 +3164,11 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "saveParticles",			Cmd_SaveParticles_f,		CMD_FL_GAME|CMD_FL_CHEAT,	"saves all lights to the .map file" );
 	cmdSystem->AddCommand( "clearLights",			Cmd_ClearLights_f,			CMD_FL_GAME|CMD_FL_CHEAT,	"clears all lights" );
 	cmdSystem->AddCommand( "gameError",				Cmd_GameError_f,			CMD_FL_GAME|CMD_FL_CHEAT,	"causes a game error" );
+	//KIRBYQUAKE BEGIN
+	cmdSystem->AddCommand("locate", Cmd_Locate_f, CMD_FL_GAME, "gives player coordinates");
+	cmdSystem->AddCommand("heal", Cmd_Heal_f, CMD_FL_GAME, "fully heals player");
+	cmdSystem->AddCommand("flamethrower", Cmd_Flamethrower_f, CMD_FL_GAME, "changes weapon to flamethrower");
+	//KIRBYQUAKE END
 
 // RAVEN BEGIN
 // rjohnson: entity usage stats

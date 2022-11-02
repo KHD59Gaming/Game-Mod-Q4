@@ -60,6 +60,7 @@ rvWeaponBlaster::rvWeaponBlaster ( void ) {
 rvWeaponBlaster::UpdateFlashlight
 ================
 */
+
 bool rvWeaponBlaster::UpdateFlashlight ( void ) {
 	if ( !wsfl.flashlight ) {
 		return false;
@@ -240,7 +241,7 @@ stateResult_t rvWeaponBlaster::State_Raise( const stateParms_t& parms ) {
 	switch ( parms.stage ) {
 		case RAISE_INIT:			
 			SetStatus ( WP_RISING );
-			PlayAnim( ANIMCHANNEL_ALL, "raise", parms.blendFrames );
+			//PlayAnim( ANIMCHANNEL_ALL, "raise", parms.blendFrames );
 			return SRESULT_STAGE(RAISE_WAIT);
 			
 		case RAISE_WAIT:
@@ -427,13 +428,19 @@ stateResult_t rvWeaponBlaster::State_Fire ( const stateParms_t& parms ) {
 
 	
 			if ( gameLocal.time - fireHeldTime > chargeTime ) {	
-				Attack ( true, 1, spread, 0, 1.0f );
+				Attack ( true, 10, spread, 0, 1.0f );
 				PlayEffect ( "fx_chargedflash", barrelJointView, false );
 				PlayAnim( ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames );
 			} else {
-				Attack ( false, 1, spread, 0, 1.0f );
-				PlayEffect ( "fx_normalflash", barrelJointView, false );
-				PlayAnim( ANIMCHANNEL_ALL, "fire", parms.blendFrames );
+				Attack ( true, 2, spread, 0, 1.0f );
+				//KQ BEGIN
+				PlayEffect ( "fx_chargedflash", barrelJointView, false );
+				PlayAnim( ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames );
+				//KQ ORIGINAL CODE
+				//PlayEffect ( "fx_normalflash", barrelJointView, false );
+				//PlayAnim( ANIMCHANNEL_ALL, "fire", parms.blendFrames );
+
+				//KQ END
 			}
 			fireHeldTime = 0;
 			

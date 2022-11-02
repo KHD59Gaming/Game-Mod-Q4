@@ -1,6 +1,6 @@
 #include "../../idlib/precompiled.h"
 #pragma hdrstop
-
+#include <dos.h>
 #include "../Game_local.h"
 
 CLASS_DECLARATION( idPhysics_Actor, idPhysics_Player )
@@ -8,7 +8,7 @@ END_CLASS
 
 // movement parameters
 const float PM_STOPSPEED		= 100.0f;
-const float PM_SWIMSCALE		= 0.5f;
+const float PM_SWIMSCALE		= 1.0f;
 const float PM_LADDERSPEED		= 100.0f;
 const float PM_STEPSCALE		= 1.0f;
 
@@ -21,7 +21,7 @@ const float PM_FLYACCELERATE	= 8.0f;
 
 const float PM_FRICTION			= 6.0f;
 const float PM_AIRFRICTION		= 0.0f;
-const float PM_WATERFRICTION	= 2.0f;
+const float PM_WATERFRICTION	= 0.5f; //KQ originally 2.0f
 const float PM_FLYFRICTION		= 3.0f;
 const float PM_NOCLIPFRICTION	= 12.0f;
 // RAVEN BEGIN
@@ -38,7 +38,7 @@ const int PMF_JUMPED			= 2;		// set when the player jumped this frame
 const int PMF_STEPPED_UP		= 4;		// set when the player stepped up this frame
 const int PMF_STEPPED_DOWN		= 8;		// set when the player stepped down this frame
 const int PMF_JUMP_HELD			= 16;		// set when jump button is held down
-const int PMF_TIME_LAND			= 32;		// movementTime is time before rejump
+const int PMF_TIME_LAND			= 32;		// movementTime is time before rejump | KQ WAS 32
 const int PMF_TIME_KNOCKBACK	= 64;		// movementTime is an air-accelerate only time
 const int PMF_TIME_WATERJUMP	= 128;		// movementTime is waterjump
 const int PMF_ALL_TIMES			= (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK);
@@ -567,7 +567,8 @@ void idPhysics_Player::WaterMove( void ) {
 
 	// user intentions
 	if ( !scale ) {
-		wishvel = gravityNormal * 60; // sink towards bottom
+		wishvel = gravityNormal * 1800; // sink towards bottom
+		//KQ edited for floating physics oringally 60x
 	} else {
 		wishvel = scale * (viewForward * command.forwardmove + viewRight * command.rightmove);
 		wishvel -= scale * gravityNormal * command.upmove;
@@ -704,7 +705,8 @@ void idPhysics_Player::WalkMove( void ) {
 			idPhysics_Player::WaterMove();
 		}
 		else {
-			idPhysics_Player::AirMove();
+			//idPhysics_Player::AirMove();
+			idPhysics_Player::WaterMove();
 		}
 		return;
 	}
@@ -1114,8 +1116,8 @@ void idPhysics_Player::CheckGround( bool checkStuck ) {
 		// don't do landing time if we were just going down a slope
 		if ( (current.velocity * -gravityNormal) < -200.0f ) {
 			// don't allow another jump for a little while
-			current.movementFlags |= PMF_TIME_LAND;
-			current.movementTime = 250;
+			//current.movementFlags |= PMF_TIME_LAND;
+			//current.movementTime = 250;
 		}		
 	}
 
@@ -1293,7 +1295,7 @@ bool idPhysics_Player::CheckJump( void ) {
 	walking = false;
 	current.movementFlags |= PMF_JUMP_HELD | PMF_JUMPED;
 
-	addVelocity = 2.0f * maxJumpHeight * -gravityVector;
+	addVelocity = 3.0f * maxJumpHeight * -gravityVector;
 	addVelocity *= idMath::Sqrt( addVelocity.Normalize() );
 	current.velocity += addVelocity;
 
@@ -1409,6 +1411,8 @@ void idPhysics_Player::SetWaterLevel( void ) {
 			}
 		}
 	}
+	//KQ water physics for kirbyfloat
+	waterLevel = WATERLEVEL_HEAD;
 }
 
 /*

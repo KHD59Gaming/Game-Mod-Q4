@@ -236,13 +236,15 @@ public:
 	void				EnterCinematic				( void );
 	void				ExitCinematic				( void );
 
+	void				SetState(const char* statename, int blendFrames);
+
+
 protected:
 
 	virtual void		OnLaunchProjectile			( idProjectile* proj );
 
-	void				SetState					( const char *statename, int blendFrames );
-	void				PostState					( const char *statename, int blendFrames );
-	void				ExecuteState				( const char *statename );
+	void				PostState(const char* statename, int blendFrames);
+	void				ExecuteState(const char* statename);
 
 	void				PlayAnim					( int channel, const char *animname, int blendFrames );
 	void				PlayCycle					( int channel, const char *animname, int blendFrames );

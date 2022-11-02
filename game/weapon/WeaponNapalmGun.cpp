@@ -32,6 +32,7 @@ public:
 protected:
 
 	void					UpdateCylinders(void);
+	bool fireHeld;
 	
 	typedef enum {CYLINDER_RESET_POSITION,CYLINDER_MOVE_POSITION, CYLINDER_UPDATE_POSITION } CylinderState;
 	CylinderState								cylinderState;
@@ -85,6 +86,7 @@ void WeaponNapalmGun::Spawn( void ) {
 	assert(viewModel);
 	idAnimator* animator = viewModel->GetAnimator();
 	assert(animator);
+	fireHeld = false;
 
 	SetState( "Raise", 0 );	
 
@@ -394,12 +396,12 @@ stateResult_t WeaponNapalmGun::State_Fire( const stateParms_t& parms ) {
 	switch ( parms.stage ) {
 		case STAGE_INIT:
 			if ( wsfl.zoom ) {
-				nextAttackTime = gameLocal.time + (altFireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
+				nextAttackTime = gameLocal.time; //KQ was gameLocal.time + (altFireRate * owner->PowerUpModifier ( PMOD_FIRERATE ))
 				Attack ( true, 1, spread, 0, 1.0f );
 				PlayAnim ( ANIMCHANNEL_ALL, "idle", parms.blendFrames );
-				//fireHeld = true;
+				fireHeld = true;
 			} else {
-				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
+				nextAttackTime = gameLocal.time; //KQ was gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ))
 				Attack ( false, 1, spread, 0, 1.0f );
 
 				int animNum = viewModel->GetAnimator()->GetAnim ( "fire" );
@@ -427,6 +429,7 @@ stateResult_t WeaponNapalmGun::State_Fire( const stateParms_t& parms ) {
 	}
 	return SRESULT_ERROR;
 }
+
 
 stateResult_t WeaponNapalmGun::Frame_MoveCylinder( const stateParms_t& parms) {
 	cylinderState = CYLINDER_MOVE_POSITION;

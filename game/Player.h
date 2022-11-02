@@ -434,6 +434,12 @@ public:
 	void					Spawn( void );
 	void					Think( void );
 
+	//KQ BEGIN
+	void					Event_Heal(float newHealth);
+	void					Event_SwapWeapon(const char* weaponName);
+	void                    idPlayer::SetCurrentWeapon(int weaponNum);
+	//KQ END
+
 	// save games
 	void					Save( idSaveGame *savefile ) const;					// archives object for save game file
 	void					Restore( idRestoreGame *savefile );					// unarchives object from save game file
